@@ -7,6 +7,10 @@ framework:
 
     #esi: true
     #fragments: true
+web_profiler:
+    toolbar: true
+    intercept_redirects: false
+    excluded_ajax_paths: ^/(index|_wdt)
 
 when@test:
     framework:
