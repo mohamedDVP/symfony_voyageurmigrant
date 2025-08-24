@@ -45,7 +45,7 @@ COPY ./docker/php/start-server.sh /usr/local/bin/start-server.sh
 RUN chmod +x /usr/local/bin/start-server.sh
 
 # Exposer le port 8000 pour le serveur Symfony
-EXPOSE 8080
+EXPOSE 8000
 
 # Entrypoint et commande par défaut
 ENTRYPOINT ["entrypoint.sh"]
