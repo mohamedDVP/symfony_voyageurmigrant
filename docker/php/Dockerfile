@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     curl \
     zip \
+    ssl-cert \
     && docker-php-ext-install \
     intl \
     pdo_mysql \
@@ -19,6 +20,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     mbstring \
     && a2enmod rewrite \
+    && a2enmod ssl \
+    && a2ensite default-ssl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Installer Composer depuis l'image officielle
@@ -31,8 +34,12 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash \
 # Définir le répertoire de travail
 WORKDIR /var/www/html
 
-# Copier la configuration Apache pour Symfony
+# Copier la configuration Apache pour Symfony (HTTP)
 COPY ./docker/php/vhost.conf /etc/apache2/sites-available/000-default.conf
+
+# Copier la configuration Apache SSL personnalisée (si besoin)
+COPY ./docker/php/vhost-ssl.conf /etc/apache2/sites-available/default-ssl.conf
+# COPY ./docker/php/vhost-ssl.conf /etc/apache2/sites-available/default-ssl.conf
 
 # Copier les scripts d’initialisation (si tu en as)
 COPY ./docker/php/setup-symfony.sh /usr/local/bin/setup-symfony.sh
@@ -44,8 +51,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 COPY ./docker/php/start-server.sh /usr/local/bin/start-server.sh
 RUN chmod +x /usr/local/bin/start-server.sh
 
-# Exposer le port 8000 pour le serveur Symfony
-EXPOSE 8000
+# Exposer HTTP (80 / 8000) et HTTPS (443)
+EXPOSE 8000 443
 
 # Entrypoint et commande par défaut
 ENTRYPOINT ["entrypoint.sh"]

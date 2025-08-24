@@ -6,6 +6,10 @@ when@dev:
     framework:
         profiler:
             collect_serializer_data: true
+            enabled: true
+            only_exceptions: false
+
+
 
 when@test:
     framework:

@@ -29,14 +29,15 @@ services:
       dockerfile: docker/php/Dockerfile
     container_name: symfony_web
     environment:
-      APP_ENV: ${APP_ENV}
-      APP_DEBUG: ${APP_DEBUG}
+      APP_ENV: dev
+      APP_DEBUG: 1
       TRUSTED_HOSTS: ${TRUSTED_HOSTS}
       TRUSTED_PROXIES: ${TRUSTED_PROXIES}
     volumes:
       - ./:/var/www/html:cached
     ports:
       - "8080:80"
+      - "8443:443"
     depends_on:
       - db
     networks:
