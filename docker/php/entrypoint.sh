@@ -1,10 +1,15 @@
 #!/bin/bash
 set -e
 
-# Vérifie si vendor/ existe, sinon lance composer install
+# Installer les dépendances si nécessaire
 if [ ! -d "vendor" ]; then
   echo "Installing composer dependencies..."
   composer install --no-interaction
 fi
 
-exec "$@"
+# Vider et régénérer le cache dev
+php bin/console cache:clear
+php bin/console cache:warmup
+
+# Lancer Apache
+exec apache2-foreground

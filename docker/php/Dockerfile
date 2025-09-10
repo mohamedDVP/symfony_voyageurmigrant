@@ -2,58 +2,34 @@
 FROM php:8.4-apache
 
 # Installer dépendances système et extensions PHP nécessaires
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libicu-dev \
-    libpq-dev \
-    libzip-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpng-dev \
     libonig-dev \
     libxml2-dev \
-    curl \
+    libzip-dev \
     zip \
-    ssl-cert \
-    && docker-php-ext-install \
-    intl \
-    pdo_mysql \
-    opcache \
-    zip \
-    mbstring \
-    && a2enmod rewrite \
-    && a2enmod ssl \
-    && a2ensite default-ssl \
+    unzip \
+    git \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Installer Composer depuis l'image officielle
+#installer Composer pour les dépendances de symfony
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Installer Symfony CLI
-RUN curl -sS https://get.symfony.com/cli/installer | bash \
-    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
 
 # Définir le répertoire de travail
 WORKDIR /var/www/html
 
-# Copier la configuration Apache pour Symfony (HTTP)
-COPY ./docker/php/vhost.conf /etc/apache2/sites-available/000-default.conf
+# Changer l'utilisateur courant pour www-data
+COPY --chown=www-data:www-data . /var/www/html
 
-# Copier la configuration Apache SSL personnalisée (si besoin)
-COPY ./docker/php/vhost-ssl.conf /etc/apache2/sites-available/default-ssl.conf
-# COPY ./docker/php/vhost-ssl.conf /etc/apache2/sites-available/default-ssl.conf
+# Configurer Apache pour pointer vers le dossier public de Symfony
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
+    && sed -i 's|<Directory /var/www/html>|<Directory /var/www/html/public>|g' /etc/apache2/apache2.conf \
+    && a2enmod rewrite
 
-# Copier les scripts d’initialisation (si tu en as)
-COPY ./docker/php/setup-symfony.sh /usr/local/bin/setup-symfony.sh
-RUN chmod +x /usr/local/bin/setup-symfony.sh
 
-COPY ./docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# Exposer le port Apache
+EXPOSE 80
 
-COPY ./docker/php/start-server.sh /usr/local/bin/start-server.sh
-RUN chmod +x /usr/local/bin/start-server.sh
-
-# Exposer HTTP (80 / 8000) et HTTPS (443)
-EXPOSE 8000 443
-
-# Entrypoint et commande par défaut
-ENTRYPOINT ["entrypoint.sh"]
+# Commande par défaut
 CMD ["apache2-foreground"]

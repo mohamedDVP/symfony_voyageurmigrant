@@ -7,6 +7,10 @@
 /public/bundles/
 /var/
 /vendor/
+/start.sh
+/compose.yaml
+/docker-compose.override.yaml
+/docker/php/
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
@@ -18,3 +22,11 @@
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+docker/php/entrypoint.sh
+compose.yaml
+composer.lock
+config/packages/web_profiler.yaml
+docker/php/Dockerfile
+docker/php/entrypoint.sh
+docker/php/vhost.conf
+start.sh

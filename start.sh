@@ -22,3 +22,4 @@ docker exec -it $WEB_CONTAINER php bin/console cache:clear
 echo "✅ Tout est prêt !"
 echo "Accédez à Symfony : http://localhost:8080/"
 echo "Accédez à PhpMyAdmin : http://localhost:8086/"
+
