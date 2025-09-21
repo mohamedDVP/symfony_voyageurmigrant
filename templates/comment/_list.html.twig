@@ -1,0 +1,12 @@
+<ul class="list-unstyled" id="comment-list">
+	{% set approvedComments = post.comments|filter(c => c.status == 'approved' and c.parent is null) %}
+
+	{% if approvedComments|length > 0 %}
+		{% for comment in approvedComments %}
+			{% include 'comment/_comment_item.html.twig' with { 'comment': comment } %}
+		{% endfor %}
+	{% else %}
+		<p>Aucun commentaire pour l’instant.</p>
+	{% endif %}
+</ul>
+

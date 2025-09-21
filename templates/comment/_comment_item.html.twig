@@ -1,0 +1,24 @@
+<li class="mb-3 border p-2 rounded" data-comment-id="{{ comment.id }}">
+	<strong>{{ comment.author.email }}</strong>
+	<small class="text-muted">({{ comment.createdAt|date('d/m/Y H:i') }})</small>
+	<p>{{ comment.content }}</p>
+
+	{% if app.user %}
+		<form class="reply-form" data-parent="{{ comment.id }}" method="post" action="{{ path('app_comment_reply', {'id': comment.post.id}) }}">
+			<textarea name="content" class="form-control mb-2" rows="2" placeholder="Répondre..."></textarea>
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+			<button class="btn btn-sm btn-primary">Répondre</button>
+		</form>
+	{% endif %}
+
+	{% if comment.children|length > 0 %}
+		<ul class="list-unstyled ms-4">
+			{% for reply in comment.children %}
+				{% if reply.status == 'approved' %}
+					{% include 'comment/_comment_item.html.twig' with { 'comment': reply } %}
+				{% endif %}
+			{% endfor %}
+		</ul>
+	{% endif %}
+</li>
+

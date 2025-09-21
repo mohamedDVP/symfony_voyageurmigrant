@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tous les articles
+{% endblock %}
+
+{% block body %}
+	<div class="container mt-5">
+		<h1 class="mb-4">Tous les articles</h1>
+
+		{% for post in posts %}
+			<div class="card mb-4">
+				<div class="card-body">
+					<h3 class="card-title">{{ post.title }}</h3>
+					<p class="text-muted">
+						Publié le
+						{{ post.createdAt|date('d/m/Y') }}
+						par
+						{{ post.author.email }}
+					</p>
+					<p>{{ post.content|slice(0, 200) ~ '...' }}</p>
+
+					<div class="mb-2">
+						{% for category in post.categories %}
+							<span class="badge bg-primary">{{ category.name }}</span>
+						{% endfor %}
+					</div>
+
+					<a href="{{ path('app_post_show', {'slug': post.slug}) }}" class="btn btn-primary">
+						Lire l'article
+					</a>
+				</div>
+			</div>
+		{% else %}
+			<p>Aucun article disponible pour le moment.</p>
+		{% endfor %}
+	</div>
+{% endblock %}
+

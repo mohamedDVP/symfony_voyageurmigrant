@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ post.title }}
+{% endblock %}
+
+{% block body %}
+	<h1>{{ post.title }}</h1>
+	<p>{{ post.content|raw }}</p>
+	<hr>
+
+	<h3>Commentaires</h3>
+
+	<ul class="list-unstyled" id="comment-list">
+		{% set approvedComments = post.comments|filter(c => c.status == 'approved' and c.parent is null) %}
+
+		{% if approvedComments|length > 0 %}
+			{% for comment in approvedComments %}
+				{% include 'comment/_comment_item.html.twig' with { 'comment': comment } %}
+			{% endfor %}
+		{% else %}
+			<p>Aucun commentaire pour l’instant.</p>
+		{% endif %}
+	</ul>
+
+	{% if app.user %}
+		<h4>Laisser un commentaire</h4>
+		<form id="new-comment-form" method="post" action="{{ path('app_comment_reply', {'id': post.id}) }}">
+			<textarea name="content" class="form-control mb-2" rows="3" placeholder="Écrire un commentaire..."></textarea>
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+			<button class="btn btn-primary">Publier</button>
+		</form>
+	{% else %}
+		<p>
+			<a href="{{ path('app_login') }}">Connectez-vous</a>
+			pour laisser un commentaire.</p>
+	{% endif %}
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+
+function attachReplyForm(form) {
+form.addEventListener('submit', function (e) {
+e.preventDefault();
+const parentId = form.dataset.parent || null;
+const content = form.querySelector('textarea[name="content"]').value;
+const csrfToken = form.querySelector('input[name="_csrf_token"]') ?. value;
+
+fetch(form.action, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'X-Requested-With': 'XMLHttpRequest'
+},
+body: JSON.stringify(
+{content: content, parent: parentId, _csrf_token: csrfToken}
+)
+}).then(res => res.json()).then(data => {
+if (data.success) {
+alert('Commentaire envoyé, en attente de validation.');
+
+// Si c'est une réponse à un commentaire, on peut l'ajouter dans le DOM
+if (parentId) {
+const parentLi = document.querySelector (`li[data-comment-id="${parentId}"]`);
+let childUl = parentLi.querySelector('ul');
+if (! childUl) {
+childUl = document.createElement('ul');
+childUl.classList.add('list-unstyled', 'ms-4');
+parentLi.appendChild(childUl);
+}
+const li = document.createElement('li');
+li.classList.add('mb-2', 'border', 'p-2', 'rounded');
+li.innerHTML = `<strong>${
+data.author
+}</strong>
+                                        <small class="text-muted">(${
+data.createdAt
+})</small>
+                                        <p>${
+data.content
+}</p>`;
+childUl.appendChild(li);
+} else { // C'est un nouveau commentaire parent
+const commentList = document.getElementById('comment-list');
+const li = document.createElement('li');
+li.classList.add('mb-3', 'border', 'p-2', 'rounded');
+li.innerHTML = `<strong>${
+data.author
+}</strong>
+                                        <small class="text-muted">(${
+data.createdAt
+})</small>
+                                        <p>${
+data.content
+}</p>`;
+commentList.appendChild(li);
+} form.reset();
+} else {
+alert('Erreur lors de l\'envoi.');
+}
+});
+});
+}
+
+// Attacher les formulaires de réponse déjà présents
+document.querySelectorAll('.reply-form').forEach(form => attachReplyForm(form));
+
+// Attacher le formulaire principal de commentaire
+const mainForm = document.getElementById('new-comment-form');
+if (mainForm)
+attachReplyForm(mainForm);
+
+});
+	</script>
+{% endblock %}
+
