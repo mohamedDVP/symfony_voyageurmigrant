@@ -10,13 +10,12 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use App\Entity\User;
-
+use Symfony\Component\Security\Core\User\UserInterface;
 final class ChangePasswordController extends AbstractController
 {
     #[Route('/profil/change-password', name: 'app_change_password')]
     #[IsGranted('ROLE_USER')]
-    public function changePassword(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $em): Response
+    public function changePassword(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $em, UserInterface $user): Response
     {
         $user = $this->getUser();
         $form = $this->createForm(ChangePasswordFormType::class);

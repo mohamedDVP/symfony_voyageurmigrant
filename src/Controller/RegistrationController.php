@@ -3,19 +3,21 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\RegistrationFormType;
 use App\Security\EmailVerifier;
+use Symfony\Component\Mime\Email;
+use App\Form\RegistrationFormType;
+use Symfony\Component\Mime\Address;
 use App\Security\LoginAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
@@ -24,40 +26,21 @@ class RegistrationController extends AbstractController
     {
     }
 
-    #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
+#[Route('/test-email', name: 'app_test_email')]
+    public function send(MailerInterface $mailer): Response
     {
-        $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
-        $form->handleRequest($request);
+        $email = (new Email())
+            ->from('no-reply@voyageurmigrant.com')
+            ->to('test@example.com') // n’importe quel email, Mailtrap capture tout
+            ->subject('Test Mailtrap Symfony')
+            ->text('Bonjour, ceci est un test envoyé depuis Symfony !');
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
-
-            // encode the plain password
-            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('no-reply@voyageurmigrant.com', 'Création de compte - Voyageurmigrant'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
-
-            // do anything else you need here, like send an email
-
-            return $security->login($user, LoginAuthenticator::class, 'main');
+        try {
+            $mailer->send($email);
+            return new Response('✅ Email envoyé vers Mailtrap');
+        } catch (\Exception $e) {
+            return new Response('❌ Erreur lors de l’envoi du mail : '.$e->getMessage());
         }
-
-        return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form,
-        ]);
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
