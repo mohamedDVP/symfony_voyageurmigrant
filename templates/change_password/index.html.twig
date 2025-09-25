@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Changer le mot de passe
+{% endblock %}
+
+{% block body %}
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="card shadow-sm">
+					<div class="card-header bg-primary text-white text-center">
+						<h3>Changer le mot de passe</h3>
+					</div>
+					<div class="card-body">
+						{{ form_start(changePasswordForm) }}
+						<div class="mb-3">
+							{{ form_label(changePasswordForm.plainPassword.first) }}
+							{{ form_widget(changePasswordForm.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
+							{{ form_errors(changePasswordForm.plainPassword.first) }}
+						</div>
+						<div class="mb-3">
+							{{ form_label(changePasswordForm.plainPassword.second) }}
+							{{ form_widget(changePasswordForm.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
+							{{ form_errors(changePasswordForm.plainPassword.second) }}
+						</div>
+						<button class="btn btn-success w-100">Mettre à jour</button>
+						{{ form_end(changePasswordForm) }}
+
+						<a href="{{ path('app_profile') }}" class="btn btn-outline-secondary w-100 mt-2">Retour</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+

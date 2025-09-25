@@ -7,7 +7,9 @@ use App\Entity\User;
 use App\Entity\Comment;
 use Symfony\Component\HttpFoundation\Response;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
+use Symfony\Component\Security\Core\User\UserInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -40,6 +42,19 @@ class DashboardController extends AbstractDashboardController
         // (tip: it's easier if your template extends from @EasyAdmin/page/content.html.twig)
         //
         // return $this->render('some/path/my-dashboard.html.twig');
+    }
+
+    public function configureUserMenu(UserInterface $user): UserMenu
+    {
+        return parent::configureUserMenu($user)
+            // Lien vers la page profil
+            ->addMenuItems([
+                // Ici tu ajoutes ton bouton "Mon profil"
+                MenuItem::linkToRoute('Mon profil', 'fa fa-user', 'app_profile'),
+
+                // (Optionnel) Retour au site
+                MenuItem::linkToRoute('Retour au site', 'fa fa-globe', 'app_profile'),
+            ]);
     }
 
     public function configureDashboard(): Dashboard

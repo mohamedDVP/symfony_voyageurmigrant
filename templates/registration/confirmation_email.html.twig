@@ -1,0 +1,13 @@
+<h2>Bienvenue sur Voyageurmigrant !</h2>
+
+<p>Merci pour votre inscription. Cliquez sur le lien ci-dessous pour confirmer votre adresse email :</p>
+
+<p>
+	<a href="{{ signedUrl }}">Confirmer mon email</a>
+</p>
+
+<p>
+	Ce lien expirera
+	{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+</p>
+
