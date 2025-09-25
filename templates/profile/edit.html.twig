@@ -31,6 +31,12 @@
 							{{ form_errors(profileForm.plainPassword.second) }}
 						</div>
 
+                        <div class="mb-3">
+                            {{ form_label(profileForm.username, 'Nom d\'utilisateur', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(profileForm.username, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(profileForm.username) }}
+                        </div>
+
 						<button type="submit" class="btn btn-success w-100">Mettre à jour</button>
 						{{ form_end(profileForm) }}
 
